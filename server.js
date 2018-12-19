@@ -105,6 +105,32 @@ app.post('/recipes', jsonParser, (req, res) => {
   res.status(201).json(item);
 });
 
+app.put('/recipes/:id', jsonParser, (req, res) => {
+  const fields = ['name', 'id', 'ingredients'];
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+    if (!(field in req.body)) {
+      const errMessage = `Missing \`${field}\` in request body.`;
+      console.error(errMessage);
+      return res.status(400).send(errMessage);
+    }
+  }
+
+  if (req.params.id != req.body.id) {
+    const errMessage = `Request path id ${req.params.id} and request body id ${req.body.id} must match.`;
+    console.error(errMessage);
+    return res.status(400).send(errMessage);
+  }
+
+  console.log(`Updating recipe \`${req.params.id}\``);
+  Recipes.update({
+    name: req.body.name,
+    id: req.params.id,
+    ingredients: req.body.ingredients
+  });
+  res.status(204).end();
+})
+
 app.delete('/recipes/:id', (req, res) => {
   Recipes.delete(req.params.id);
   console.log(`Deleted recipe \`${req.params.ID}\``);
